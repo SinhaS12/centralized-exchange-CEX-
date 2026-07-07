@@ -11,3 +11,52 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+enum CATEGORY {
+  LIMIT
+  MARKET
+}
+
+enum TYPE {
+  bid
+  ask
+}
+
+model User {
+  id       Int     @id @default(autoincrement())
+  username String
+  password String
+  email    String  @unique
+  Order    Order[]
+  Fills    Fills[]
+}
+
+model Stocks {
+  id        Int     @id @default(autoincrement())
+  StockName String  @unique
+  Order     Order[]
+}
+
+model Order {
+  id        Int      @id @default(autoincrement())
+  user      Int
+  Stock     Int
+  category  CATEGORY
+  type      TYPE
+  amount    Decimal?
+  volume    Decimal?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    User     @relation(fields: [user], references: [id])
+  StockId   Stocks   @relation(fields: [Stock], references: [id])
+  Fills     Fills[]
+}
+
+model Fills {
+  id        Int      @id @default(autoincrement())
+  order     Int
+  user      Int
+  createdAt DateTime @default(now())
+  orderId   Order    @relation(fields: [order], references: [id])
+  userId    User     @relation(fields: [user], references: [id])
+}
