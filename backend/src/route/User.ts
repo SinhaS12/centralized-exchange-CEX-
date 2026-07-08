@@ -18,6 +18,22 @@ if (!process.env.BCRYPT_HASH) {
 const BCRYPT_HASH = process.env.BCRYPT_HASH;
 
 
+
+interface UserLayer2 {
+    email:string
+    password: string
+}
+
+interface UserLayer1 {
+   [userId:number]:UserLayer2
+}
+
+
+
+const User:UserLayer1[] = [];
+
+
+
 router.post("/signup", async (req, res) => {
     const main = signup_val.safeParse(req.body);
     if (!main.success) {
@@ -28,7 +44,11 @@ router.post("/signup", async (req, res) => {
     }
     const { username, password, email } = main.data;
     try {
-        const find_existing = await prisma.user.findUnique({ where: { email:email } });
+        //in-memory thing
+
+
+
+        const find_existing = await prisma.user.findUnique({ where: { email: email } });
         if (find_existing) {
             return res.status(402).json({
                 success: false,
@@ -75,6 +95,12 @@ router.post("/login", async (req, res) => {
     }
     const { id, email, password } = main.data;
     try {
+        //in-memory
+
+
+
+
+
         const find_existing = await prisma.user.findUnique({ where: { email } });
         if (!find_existing) {
             return res.status(404).json({
