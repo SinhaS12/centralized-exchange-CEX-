@@ -3,7 +3,10 @@ import z from 'zod';
 
 
 export const order_val=z.object({
-    stockname:z.string()
+    stockname:z.string(),
+    amount:z.number().optional(),
+    type:z.enum(["bid","ask"]),
+    category:z.enum(["LIMIT","MARKET"]),
 })
 
 
