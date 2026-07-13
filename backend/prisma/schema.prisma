@@ -22,6 +22,12 @@ enum TYPE {
   ask
 }
 
+enum STATUS {
+  OPEN
+  FILLED
+  CANCELLED
+}
+
 model User {
   id       Int     @id @default(autoincrement())
   username String
@@ -32,9 +38,10 @@ model User {
 }
 
 model Stocks {
-  id        Int     @id @default(autoincrement())
-  StockName String  @unique
-  Order     Order[]
+  id          Int     @id @default(autoincrement())
+  StockName   String  @unique
+  StockSymbol String  @unique
+  Order       Order[]
 }
 
 model Order {
@@ -44,20 +51,26 @@ model Order {
   StockName String
   category  CATEGORY
   type      TYPE
-  amount    Decimal?
-  volume    Decimal?
+  status    STATUS
+  volume    Decimal
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   userId    User     @relation(fields: [user], references: [id])
   StockId   Stocks   @relation(fields: [Stock], references: [id])
   Fills     Fills[]
 }
-
+//amount will be calculated on the latest trade
 model Fills {
-  id        Int      @id @default(autoincrement())
-  order     Int
-  user      Int
-  createdAt DateTime @default(now())
-  orderId   Order    @relation(fields: [order], references: [id])
-  userId    User     @relation(fields: [user], references: [id])
+  id             Int      @id @default(autoincrement())
+  order          Int
+  user           Int
+  asset          String
+  category       CATEGORY
+  type           TYPE
+  Quantity       Int
+  price          Int
+  orginalOrderId Int
+  createdAt      DateTime @default(now())
+  orderId        Order    @relation(fields: [order], references: [id])
+  userId         User     @relation(fields: [user], references: [id])
 }

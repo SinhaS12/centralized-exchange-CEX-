@@ -1,0 +1,7 @@
+Order mein apply hoga 
+1.trasaction
+2.Locking in this case 
+3.Decimal Rule(Razorpay)
+4.In-meomy se lega yah sab data 
+
+

@@ -9,7 +9,6 @@ export const signup_val=z.object({
 
 
 export const signin_val=z.object({
-    id:z.number(),
     email:z.string(),
     password:z.string()
 })
