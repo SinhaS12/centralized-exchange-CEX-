@@ -1,23 +1,25 @@
 
 
+interface OrderEntry {
+    userid: number,
+    volume: number,
+    amount: number
+}
 
+interface OrderBook {
+    bids: OrderEntry[],
+    asks: OrderEntry[],
+    latestTrade: number
 
+}
 interface Order {
-    [stockName: string]: {
-        bids: [
-            { userId: number, volume: number, amount: number }
-        ],
-        asks: [
-            { userId: number, volume: number, amount: number }
-        ],
-        latestTrade: number
-    }
+    [stockName: string]: OrderBook
 }
 
 
 
 
-const order: Order[] = [];
+const order: Order = {};
 
 
 /* 
