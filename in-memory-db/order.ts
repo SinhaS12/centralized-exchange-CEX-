@@ -6,9 +6,15 @@ interface OrderEntry {
     amount: number
 }
 
+
+
 interface OrderBook {
-    bids: OrderEntry[],
-    asks: OrderEntry[],
+    bids: {
+        [amount:number]:OrderEntry[];
+    },
+    asks: {
+        [amount:number]:OrderEntry[];
+    },
     latestTrade: number
 
 }
