@@ -5,3 +5,48 @@ Order mein apply hoga
 4.In-meomy se lega yah sab data 
 
 
+/* 
+agar koi bid kiya kisi amount pr.
+aur  
+agar ussi amount pr utna stock hoga tho. 
+match kar do .
+
+pre-requist hoga 
+1)Check first is the stock listed on the in memory or not 
+after all the matching or the decuation after in memory push the actual thing to 
+the postgres db 
+
+
+conditions before matching 
+1)Get the last trading match thing for the calculation of the amount for the stock
+2)Amount sufficent
+3)Lock Amount
+4)Transaction thing sab sath mein execute hoga warna kuch nahi hoga
+5)Orderbook bids and ask manupulation 
+
+Orderbook manupulation mein aata hai 
+1)stock exchange quantity
+    1)stock jada hua tho (agar bid hai tho ok hai minus on utna stock )
+    2)Agar stock kaam ho asked se tho match the stock fully and rest order book mein sit hoga.
+    aur bid phir asked ban jaiyega 
+    3)asked yah bid kisi se match nahi kiya tho orderbook mein kahi bath jaiyega 
+
+
+Needed information mein 
+chailiye 
+1)Bid ka data 
+2)Stock ka data 
+3)ask ka data 
+4)User balance ka data 
+
+
+
+Algorith kya usse karenge 
+1)I think Map usse karnege O(1) mein aa jaiyega 
+"AXIS":{
+    LastTrade:$$$$,
+    bids:{{amount:{userId: stock:},{userId:, stock:}},{amount :{userId: stock},{userId: ,stock}}},
+    asks:{{amount:{userId: stock:},{userId:, stock:}},{amount :{userId: stock},{userId: ,stock}}}
+}
+2)Learn the inmemory rollin and rollout thing 
+*/

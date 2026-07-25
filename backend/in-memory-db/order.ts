@@ -1,6 +1,6 @@
 
 
-interface OrderEntry {
+export interface OrderEntry {
     userid: number,
     volume: number,
     amount: number
@@ -8,7 +8,7 @@ interface OrderEntry {
 
 
 
-interface OrderBook {
+export interface OrderBook {
     bids: {
         [amount:number]:OrderEntry[];
     },
@@ -18,13 +18,13 @@ interface OrderBook {
     latestTrade: number
 
 }
-interface Order {
+export interface Order {
     [stockName: string]: OrderBook
 }
 
 
 
 
-const order: Order = {};
+export const order: Order = {};
 
 
