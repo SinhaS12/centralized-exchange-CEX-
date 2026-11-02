@@ -25,6 +25,11 @@ const router = express.Router();
 const defaultMarkets = [
   { name: "Bitcoin", symbol: "BTC-USDT", baseAsset: "BTC", price: 65_000 },
   { name: "Ethereum", symbol: "ETH-USDT", baseAsset: "ETH", price: 3_200 },
+  { name: "Solana", symbol: "SOL-USDT", baseAsset: "SOL", price: 180 },
+  { name: "BNB", symbol: "BNB-USDT", baseAsset: "BNB", price: 600 },
+  { name: "XRP", symbol: "XRP-USDT", baseAsset: "XRP", price: 2 },
+  { name: "Cardano", symbol: "ADA-USDT", baseAsset: "ADA", price: 0.7 },
+  { name: "Dogecoin", symbol: "DOGE-USDT", baseAsset: "DOGE", price: 0.2 },
 ];
 
 function mapOrder(order: {
@@ -56,6 +61,7 @@ function mapOrder(order: {
 }
 
 export async function initializeOrderBook() {
+  const referencePrices = await fetchBinanceReferencePrices();
   for (const market of defaultMarkets) {
     await prisma.stocks.upsert({
       where: { StockSymbol: market.symbol },
@@ -68,7 +74,7 @@ export async function initializeOrderBook() {
         where: { asset: market.symbol, marketType },
         orderBy: { createdAt: "desc" },
       });
-      const referencePrice = lastFill ? Number(lastFill.price) : market.price;
+      const referencePrice = lastFill ? Number(lastFill.price) : referencePrices.get(market.symbol) ?? market.price;
       matchingEngine.setLastPrice(market.symbol, marketType, referencePrice);
       const openOrders = await prisma.order.findMany({
         where: { StockName: market.symbol, marketType, status: "OPEN", remaining: { gt: 0 } },
@@ -104,6 +110,32 @@ export async function initializeOrderBook() {
   });
   for (const fill of latestFills) {
     matchingEngine.setLastPrice(fill.asset, fill.marketType, Number(fill.price));
+  }
+}
+
+async function fetchBinanceReferencePrices(): Promise<Map<string, number>> {
+  const symbols = defaultMarkets.map((market) => market.symbol.replace("-", ""));
+  const url = `https://api.binance.com/api/v3/ticker/price?symbols=${encodeURIComponent(JSON.stringify(symbols))}`;
+  try {
+    const response = await fetch(url, { signal: AbortSignal.timeout(5_000) });
+    if (!response.ok) throw new Error(`Binance returned HTTP ${response.status}`);
+    const payload: unknown = await response.json();
+    if (!Array.isArray(payload)) throw new Error("Binance returned an invalid ticker response");
+
+    const symbolToMarket = new Map(defaultMarkets.map((market) => [market.symbol.replace("-", ""), market.symbol]));
+    const prices = new Map<string, number>();
+    for (const row of payload) {
+      if (typeof row !== "object" || row === null || !("symbol" in row) || !("price" in row)) continue;
+      if (typeof row.symbol !== "string") continue;
+      const marketSymbol = symbolToMarket.get(row.symbol);
+      const price = Number(row.price);
+      if (marketSymbol && Number.isFinite(price) && price > 0) prices.set(marketSymbol, price);
+    }
+    if (!prices.size) throw new Error("Binance returned no supported market prices");
+    return prices;
+  } catch (error) {
+    console.warn("Unable to load Binance startup prices; using configured demo reference prices", error);
+    return new Map();
   }
 }
 

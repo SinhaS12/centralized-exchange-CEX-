@@ -43,17 +43,31 @@
 .chart-summary { display: flex; align-items: baseline; gap: 12px; margin: 20px 0 5px; }
 .chart-summary strong { color: #e8edf5; font-family: 'DM Mono', monospace; font-size: 21px; font-weight: 500; }
 .chart-summary span { color: var(--muted); font-size: 10px; }
+.market-data-status { display: flex; align-items: center; gap: 6px; margin-top: 5px; color: #8795a7; font-size: 9px; white-space: nowrap; }
+.market-data-status i { width: 6px; height: 6px; border-radius: 50%; background: #d3a447; }
+.market-data-status.connected i { background: var(--green); box-shadow: 0 0 8px #2ecf9166; }
+.market-data-status.stale i, .market-data-status.error i { background: var(--red); }
+.chart-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin: 9px 0 2px; color: #68798e; font-size: 9px; }
+.chart-intervals { display: flex; gap: 3px; }
+.chart-intervals button { padding: 4px 7px; border: 0; border-radius: 4px; color: #8795a7; background: transparent; font-size: 9px; }
+.chart-intervals button.selected { color: #d9e7ff; background: #263445; }
 .chart-canvas { position: relative; height: 250px; overflow: hidden; margin-top: 9px; }
 .chart-grid { position: absolute; inset: 5px 0 15px; display: flex; flex-direction: column; justify-content: space-between; }
 .chart-grid i { width: 100%; border-top: 1px dashed #25303d; }
 .chart-canvas svg { position: absolute; inset: 5px 0 15px; width: 100%; height: calc(100% - 20px); overflow: visible; }
 .chart-canvas polyline { fill: none; stroke: var(--accent); stroke-width: 1.8; vector-effect: non-scaling-stroke; }
+.chart-canvas .candle-up { color: var(--green); }
+.chart-canvas .candle-down { color: var(--red); }
+.chart-canvas .candle-up line, .chart-canvas .candle-down line { stroke: currentColor; stroke-width: .7; vector-effect: non-scaling-stroke; }
+.chart-canvas .candle-up rect:not(.candle-volume), .chart-canvas .candle-down rect:not(.candle-volume) { fill: currentColor; }
+.chart-canvas .candle-volume { fill: currentColor; opacity: .25; }
 .chart-empty { position: absolute; inset: 0; display: grid; place-items: center; color: #556476; font-size: 11px; }
 .chart-axis { position: absolute; right: 3px; color: #738197; font: 9px 'DM Mono', monospace; }
 .chart-axis.top { top: 0; }
 .chart-axis.bottom { bottom: 1px; }
 .chart-footer { display: flex; gap: 28px; margin-top: 3px; color: #738197; font-size: 9px; }
 .chart-footer b { margin-left: 5px; color: #c2cad5; font-family: 'DM Mono', monospace; font-weight: 400; }
+.market-data-error { margin-top: 8px; color: #d89772; font-size: 9px; line-height: 1.5; }
 .book-head, .book-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; align-items: center; }
 .book-head { margin: 14px 0 6px; color: #728196; font-size: 9px; }
 .book-head span:nth-child(2), .book-head span:nth-child(3), .book-row span:nth-child(2), .book-row span:nth-child(3) { text-align: right; }
@@ -61,8 +75,10 @@
 .book-row { position: relative; min-height: 22px; color: #aeb9c8; font: 10px 'DM Mono', monospace; }
 .book-row.negative span:first-child { color: var(--red); }
 .book-row.positive span:first-child { color: var(--green); }
+.book-empty { display: grid; min-height: 40px; place-items: center; color: #556476; font-size: 10px; }
 .book-price { display: flex; align-items: baseline; gap: 8px; margin: 8px 0; color: #e9edf4; font: 15px 'DM Mono', monospace; }
 .book-price span { color: #77869a; font: 9px 'DM Sans', sans-serif; }
+.book-disclaimer { margin-top: 9px; color: #76869a; font-size: 9px; line-height: 1.5; }
 .side-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin: 15px 0 13px; }
 .side-switch button { min-height: 36px; border: 1px solid var(--border); border-radius: 7px; color: #8997aa; background: #121923; font-size: 11px; }
 .side-switch .buy.selected { color: var(--green); border-color: #287759; background: #12251f; }
@@ -138,6 +154,8 @@ td.negative, .negative { color: var(--red); }
   .chart-panel, .orderbook-panel, .order-panel { grid-column: 1; grid-row: auto; min-height: auto; }
   .chart-panel { min-height: 350px; }
   .orderbook-panel { min-height: 350px; }
+  .chart-toolbar { align-items: flex-start; flex-direction: column; }
+  .chart-footer { flex-wrap: wrap; gap: 8px 18px; }
   .order-entry { display: block; }
   .order-panel { padding: 15px; }
   .account-panel { padding: 0 10px 10px; }

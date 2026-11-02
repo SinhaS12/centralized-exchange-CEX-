@@ -29,8 +29,10 @@ The React app is available at `http://localhost:5173`; the API listens on port `
 
 ## Trading behavior
 
-- New demo accounts start with 100,000 USDT, 1 BTC, and 10 ETH.
-- BTC-USDT and ETH-USDT have synthetic demo liquidity around fixed startup reference prices. This liquidity and all balances are simulated; no real exchange or custody system is connected.
+- The market screen uses Binance's public, no-key REST API for spot or USDⓈ-M perpetual candles, 24-hour ticker data, and reference order-book depth. Data refreshes every 15 seconds; Binance is read-only and receives no account or order information.
+- Orders are paper trades matched against the local simulated order book, not Binance. The UI labels Binance prices and depth as reference data to keep this distinction clear.
+- BTC-USDT, ETH-USDT, SOL-USDT, BNB-USDT, XRP-USDT, ADA-USDT, and DOGE-USDT are available for spot and perpetual paper trading. Startup synthetic liquidity is centered on Binance spot reference prices when reachable, with configured demo prices as a logged fallback.
+- New demo accounts start with 100,000 USDT and demo BTC, ETH, SOL, BNB, XRP, ADA, and DOGE balances. The market-expansion migration grants the new demo assets to existing accounts without changing balances they already hold. All balances are simulated; no real exchange or custody system is connected.
 - Spot supports market/limit buy and sell, balance reservation, partial fills, cancellation, and persisted fills.
 - Perpetuals use isolated USDT margin, 1–20× leverage, a 0.5% maintenance margin rate, mark-price liquidations, and a fixed positive funding rate of 0.01% every eight hours. Positions can be closed at the latest perp trade price.
 - Market orders may partially fill; any unfilled remainder is cancelled. Limit remainders remain on the book.

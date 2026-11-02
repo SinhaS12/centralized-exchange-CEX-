@@ -11,6 +11,11 @@ const startingBalances = [
   { asset: "USDT", available: "100000" },
   { asset: "BTC", available: "1" },
   { asset: "ETH", available: "10" },
+  { asset: "SOL", available: "100" },
+  { asset: "BNB", available: "10" },
+  { asset: "XRP", available: "1000" },
+  { asset: "ADA", available: "1000" },
+  { asset: "DOGE", available: "10000" },
 ];
 
 function tokenFor(id: number, email: string): string {

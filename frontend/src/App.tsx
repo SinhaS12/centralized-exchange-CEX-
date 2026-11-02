@@ -51,8 +51,102 @@ type Order = {
 type Trade = { id: number; price: number; quantity: number; side: Side; createdAt: string }
 type AccountFill = Trade & { symbol: string; marketType: MarketType; category: 'LIMIT' | 'MARKET' }
 type Envelope<T> = { success: boolean; message?: string; details?: T; token?: string }
+type CandleInterval = '1m' | '5m' | '15m' | '1h' | '4h' | '1d'
+type Candle = { time: number; open: number; high: number; low: number; close: number; volume: number }
+type BinanceTicker = { lastPrice: number; priceChangePercent: number; highPrice: number; lowPrice: number; quoteVolume: number }
+type BookLevel = Level & { cumulativeTotal: number }
+type BinanceMarketData = {
+  key: string
+  ticker: BinanceTicker | null
+  depth: { bids: Level[]; asks: Level[] } | null
+  candles: Candle[]
+  status: 'connected' | 'stale' | 'error'
+  error: string
+}
 
 const API_BASE = import.meta.env.VITE_API_URL ?? ''
+const BINANCE_HOSTS: Record<MarketType, string[]> = {
+  SPOT: ['https://api.binance.com/api/v3', 'https://api1.binance.com/api/v3'],
+  PERP: ['https://fapi.binance.com/fapi/v1', 'https://fapi1.binance.com/fapi/v1'],
+}
+
+async function binanceRequest(path: string, marketType: MarketType): Promise<unknown> {
+  const errors: string[] = []
+  for (const host of BINANCE_HOSTS[marketType]) {
+    try {
+      const response = await fetch(`${host}/${path}`, { signal: AbortSignal.timeout(8_000) })
+      if (!response.ok) throw new Error(`HTTP ${response.status}`)
+      return await response.json() as unknown
+    } catch (error) {
+      errors.push(error instanceof Error ? error.message : 'Network request failed')
+    }
+  }
+  throw new Error(`Binance market data is unavailable: ${errors.join('; ')}`)
+}
+
+function recordFrom(value: unknown, label: string): Record<string, unknown> {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    throw new Error(`Invalid Binance ${label} response`)
+  }
+  return value as Record<string, unknown>
+}
+
+function numberFrom(value: unknown, label: string): number {
+  const parsed = typeof value === 'number' || typeof value === 'string' ? Number(value) : Number.NaN
+  if (!Number.isFinite(parsed)) throw new Error(`Invalid Binance ${label}`)
+  return parsed
+}
+
+function parseBinanceTicker(value: unknown): BinanceTicker {
+  const ticker = recordFrom(value, 'ticker')
+  return {
+    lastPrice: numberFrom(ticker.lastPrice, 'last price'),
+    priceChangePercent: numberFrom(ticker.priceChangePercent, '24h change'),
+    highPrice: numberFrom(ticker.highPrice, '24h high'),
+    lowPrice: numberFrom(ticker.lowPrice, '24h low'),
+    quoteVolume: numberFrom(ticker.quoteVolume, '24h volume'),
+  }
+}
+
+function parseBinanceDepth(value: unknown): { bids: Level[]; asks: Level[] } {
+  const book = recordFrom(value, 'order book')
+  const parseSide = (side: unknown, label: string): Level[] => {
+    if (!Array.isArray(side)) throw new Error(`Invalid Binance ${label} depth`)
+    return side.map((entry): Level => {
+      if (!Array.isArray(entry) || entry.length < 2) throw new Error(`Invalid Binance ${label} level`)
+      return { price: numberFrom(entry[0], 'depth price'), quantity: numberFrom(entry[1], 'depth quantity') }
+    }).filter((level) => level.price > 0 && level.quantity > 0)
+  }
+  const bids = parseSide(book.bids, 'bid').sort((left, right) => right.price - left.price).slice(0, 20)
+  const asks = parseSide(book.asks, 'ask').sort((left, right) => left.price - right.price).slice(0, 20)
+  if (!bids.length || !asks.length) throw new Error('Binance returned an empty order book')
+  return { bids, asks }
+}
+
+function parseBinanceCandles(value: unknown): Candle[] {
+  if (!Array.isArray(value)) throw new Error('Invalid Binance candlestick response')
+  const candles = value.map((entry): Candle => {
+    if (!Array.isArray(entry) || entry.length < 6) throw new Error('Invalid Binance candlestick')
+    return {
+      time: numberFrom(entry[0], 'candle time'),
+      open: numberFrom(entry[1], 'candle open'),
+      high: numberFrom(entry[2], 'candle high'),
+      low: numberFrom(entry[3], 'candle low'),
+      close: numberFrom(entry[4], 'candle close'),
+      volume: numberFrom(entry[5], 'candle volume'),
+    }
+  })
+  if (!candles.length) throw new Error('Binance returned no candlesticks')
+  return candles
+}
+
+function addCumulativeTotals(levels: Level[]): BookLevel[] {
+  let cumulativeTotal = 0
+  return levels.map((level) => {
+    cumulativeTotal += level.price * level.quantity
+    return { ...level, cumulativeTotal }
+  })
+}
 
 async function request<T>(
   path: string,
@@ -88,8 +182,8 @@ function App() {
   const [markets, setMarkets] = useState<Market[]>([])
   const [symbol, setSymbol] = useState('BTC-USDT')
   const [marketType, setMarketType] = useState<MarketType>('SPOT')
-  const [depth, setDepth] = useState<{ bids: Level[]; asks: Level[] }>({ bids: [], asks: [] })
-  const [trades, setTrades] = useState<Trade[]>([])
+  const [candleInterval, setCandleInterval] = useState<CandleInterval>('1m')
+  const [binanceMarketData, setBinanceMarketData] = useState<BinanceMarketData | null>(null)
   const [orders, setOrders] = useState<Order[]>([])
   const [side, setSide] = useState<Side>('BID')
   const [category, setCategory] = useState<'LIMIT' | 'MARKET'>('LIMIT')
@@ -102,8 +196,15 @@ function App() {
   const [error, setError] = useState('')
 
   const market = markets.find((item) => item.symbol === symbol)
-  const currentDepth = marketType === 'SPOT' ? market?.spotDepth : market?.perpDepth
+  const marketDataKey = `${marketType}:${symbol}:${candleInterval}`
+  const activeMarketData = binanceMarketData?.key === marketDataKey ? binanceMarketData : null
+  const candles = activeMarketData?.candles ?? []
+  const binanceTicker = activeMarketData?.ticker ?? null
+  const binanceDepth = activeMarketData?.depth ?? null
+  const marketDataStatus = activeMarketData?.status ?? 'loading'
+  const marketDataError = activeMarketData?.error ?? ''
   const currentPrice = marketType === 'PERP' ? market?.perpLastPrice ?? market?.lastPrice ?? 0 : market?.lastPrice ?? 0
+  const priceDigits = currentPrice > 0 && currentPrice < 1 ? 5 : currentPrice < 100 ? 4 : 2
   const quoteBalance = account?.balances.find((balance) => balance.asset === 'USDT')
   const baseAsset = market?.baseAsset ?? symbol.split('-')[0]
   const baseBalance = account?.balances.find((balance) => balance.asset === baseAsset)
@@ -160,28 +261,61 @@ function App() {
   useEffect(() => {
     if (!token || !marketExists) return
     let active = true
+    let inFlight = false
     const loadMarketData = async () => {
+      if (inFlight) return
+      inFlight = true
       try {
-        const query = `?marketType=${marketType}`
-        const [bookResult, tradeResult] = await Promise.all([
-          request<{ bids: Level[]; asks: Level[] }>(`/markets/${symbol}/depth${query}`, token),
-          request<Trade[]>(`/markets/${symbol}/trades${query}`, token),
+        const binanceSymbol = symbol.replace('-', '')
+        const query = new URLSearchParams({ symbol: binanceSymbol })
+        const candleQuery = new URLSearchParams({ symbol: binanceSymbol, interval: candleInterval, limit: '100' })
+        const [tickerResponse, depthResponse, candleResponse] = await Promise.all([
+          binanceRequest(`ticker/24hr?${query}`, marketType),
+          binanceRequest(`depth?${query}&limit=20`, marketType),
+          binanceRequest(`klines?${candleQuery}`, marketType),
         ])
-        if (active) {
-          setDepth(bookResult.details)
-          setTrades(tradeResult.details)
-        }
+        if (!active) return
+        setBinanceMarketData({
+          key: marketDataKey,
+          ticker: parseBinanceTicker(tickerResponse),
+          depth: parseBinanceDepth(depthResponse),
+          candles: parseBinanceCandles(candleResponse),
+          status: 'connected',
+          error: '',
+        })
       } catch (requestError) {
-        if (active) setError(requestError instanceof Error ? requestError.message : 'Unable to load market data')
+        if (active) {
+          const text = requestError instanceof Error ? requestError.message : 'Unable to load Binance market data'
+          setBinanceMarketData((previous) => {
+            const previousData = previous?.key === marketDataKey ? previous : null
+            return {
+              key: marketDataKey,
+              ticker: previousData?.ticker ?? null,
+              depth: previousData?.depth ?? null,
+              candles: previousData?.candles ?? [],
+              status: previousData ? 'stale' : 'error',
+              error: text,
+            }
+          })
+        }
+      } finally {
+        inFlight = false
       }
     }
     void loadMarketData()
-    const timer = window.setInterval(loadMarketData, 3_000)
+    const timer = window.setInterval(loadMarketData, 15_000)
     return () => {
       active = false
       window.clearInterval(timer)
     }
-  }, [marketExists, marketType, symbol, token])
+  }, [candleInterval, marketDataKey, marketExists, marketType, symbol, token])
+
+  const askRows = binanceDepth ? addCumulativeTotals(binanceDepth.asks.slice(0, 8)).reverse() : []
+  const bidRows = binanceDepth ? addCumulativeTotals(binanceDepth.bids.slice(0, 8)) : []
+  const maxDepthTotal = Math.max(1, ...askRows.map((level) => level.cumulativeTotal), ...bidRows.map((level) => level.cumulativeTotal))
+  const bestBid = binanceDepth?.bids[0]?.price
+  const bestAsk = binanceDepth?.asks[0]?.price
+  const spread = bestBid !== undefined && bestAsk !== undefined ? bestAsk - bestBid : undefined
 
   const authenticate = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -285,7 +419,7 @@ function App() {
           <button className="text-button" onClick={() => { setAuthMode(authMode === 'login' ? 'signup' : 'login'); setError('') }}>
             {authMode === 'login' ? 'New here? Create an account' : 'Already registered? Sign in'}
           </button>
-          <div className="demo-note">New accounts receive demo USDT, BTC and ETH balances.</div>
+          <div className="demo-note">New accounts receive demo balances for USDT, BTC, ETH, SOL, BNB, XRP, ADA and DOGE.</div>
         </section>
       </main>
     )
@@ -296,12 +430,12 @@ function App() {
       <header className="topbar">
         <div className="brand"><span className="brand-mark">C</span><span>CEX</span><span className="brand-sub">EXCHANGE</span></div>
         <div className="topbar-market">
-          <select aria-label="Market" value={symbol} onChange={(event) => { setSymbol(event.target.value); setPrice(''); setDepth({ bids: [], asks: [] }); setTrades([]) }}>
+          <select aria-label="Market" value={symbol} onChange={(event) => { setSymbol(event.target.value); setPrice('') }}>
             {markets.map((item) => <option value={item.symbol} key={item.symbol}>{item.symbol}</option>)}
           </select>
           <div className="market-switch">
-            <button className={marketType === 'SPOT' ? 'active' : ''} onClick={() => { setMarketType('SPOT'); setPrice(''); setDepth({ bids: [], asks: [] }); setTrades([]) }}>Spot</button>
-            <button className={marketType === 'PERP' ? 'active' : ''} onClick={() => { setMarketType('PERP'); setPrice(''); setDepth({ bids: [], asks: [] }); setTrades([]) }}>Perp</button>
+            <button className={marketType === 'SPOT' ? 'active' : ''} onClick={() => { setMarketType('SPOT'); setPrice('') }}>Spot</button>
+            <button className={marketType === 'PERP' ? 'active' : ''} onClick={() => { setMarketType('PERP'); setPrice('') }}>Perp</button>
           </div>
         </div>
         <div className="topbar-right">
@@ -314,7 +448,8 @@ function App() {
       <main className="workspace">
         <section className="market-strip panel">
           <div className="market-title"><div className="coin-icon">{baseAsset.slice(0, 1)}</div><div><h1>{symbol.replace('-', ' / ')}</h1><span>{market?.name ?? 'Loading market'}</span></div></div>
-          <div className="market-stat"><span>Last price</span><strong>${money(currentPrice, 2)}</strong></div>
+          <div className="market-stat"><span>Paper mark</span><strong>${money(currentPrice, priceDigits)}</strong></div>
+          <div className="market-stat"><span>Binance 24h</span><strong className={(binanceTicker?.priceChangePercent ?? 0) >= 0 ? 'positive' : 'negative'}>{binanceTicker ? `${binanceTicker.priceChangePercent >= 0 ? '+' : ''}${binanceTicker.priceChangePercent.toFixed(2)}%` : '—'}</strong></div>
           {marketType === 'PERP' && <div className="market-stat"><span>Funding / 8h</span><strong className="positive">{((market?.fundingRate ?? 0) * 100).toFixed(4)}%</strong></div>}
           {marketType === 'PERP' && <div className="market-stat"><span>Next funding</span><strong>{market ? new Date(market.nextFundingAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—'}</strong></div>}
           <div className="demo-pill">SIMULATED · NOT REAL FUNDS</div>
@@ -324,17 +459,29 @@ function App() {
 
         <div className="trading-grid">
           <section className="chart-panel panel">
-            <div className="panel-heading"><div><span className="eyebrow">{marketType === 'SPOT' ? 'SPOT MARKET' : 'PERPETUAL CONTRACT'}</span><h2>{symbol}</h2></div><span className="chart-caption">Last traded price · USDT</span></div>
-            <div className="chart-summary"><strong>${money(currentPrice, 2)}</strong><span>Price updates when orders match</span></div>
-            <PriceChart trades={trades} fallbackPrice={currentPrice} />
+            <div className="panel-heading">
+              <div><span className="eyebrow">{marketType === 'SPOT' ? 'BINANCE SPOT REFERENCE' : 'BINANCE USDⓈ-M PERPETUAL REFERENCE'}</span><h2>{symbol}</h2></div>
+              <span className={`market-data-status ${marketDataStatus}`}><i />{marketDataStatus === 'connected' ? 'Binance connected' : marketDataStatus === 'loading' ? 'Connecting…' : marketDataStatus === 'stale' ? 'Data stale' : 'Data unavailable'}</span>
+            </div>
+            <div className="chart-summary"><strong>{binanceTicker ? `$${money(binanceTicker.lastPrice, priceDigits)}` : '—'}</strong><span>24h {binanceTicker ? `${binanceTicker.priceChangePercent >= 0 ? '+' : ''}${binanceTicker.priceChangePercent.toFixed(2)}%` : '—'}</span></div>
+            <div className="chart-toolbar">
+              <div className="chart-intervals">{(['1m', '5m', '15m', '1h', '4h', '1d'] as const).map((interval) => (
+                <button type="button" className={candleInterval === interval ? 'selected' : ''} key={interval} onClick={() => setCandleInterval(interval)}>{interval}</button>
+              ))}</div>
+              <span>Public data · read only</span>
+            </div>
+            <PriceChart candles={candles} status={marketDataStatus} error={marketDataError} symbol={symbol} interval={candleInterval} />
+            {binanceTicker && <div className="chart-footer"><span>24h High <b>${money(binanceTicker.highPrice, priceDigits)}</b></span><span>24h Low <b>${money(binanceTicker.lowPrice, priceDigits)}</b></span><span>Volume <b>{money(binanceTicker.quoteVolume, 0)} USDT</b></span></div>}
+            {marketDataError && <div className="market-data-error">{marketDataError}</div>}
           </section>
 
           <section className="orderbook-panel panel">
-            <div className="panel-heading"><div><span className="eyebrow">MARKET DEPTH</span><h2>Order book</h2></div><span className="unit">Price <small>(USDT)</small></span></div>
+            <div className="panel-heading"><div><span className="eyebrow">BINANCE REFERENCE DEPTH</span><h2>Order book</h2></div><span className="unit">Price <small>(USDT)</small></span></div>
             <div className="book-head"><span>Price (USDT)</span><span>Size ({baseAsset})</span><span>Total</span></div>
-            <div className="book-side asks">{(depth.asks.length ? depth.asks : currentDepth?.asks ?? []).slice(0, 8).reverse().map((level, index) => <BookRow level={level} side="ASK" key={`ask-${index}-${level.price}`} />)}</div>
-            <div className="book-price">${money(currentPrice, 2)} <span>Last price</span></div>
-            <div className="book-side bids">{(depth.bids.length ? depth.bids : currentDepth?.bids ?? []).slice(0, 8).map((level, index) => <BookRow level={level} side="BID" key={`bid-${index}-${level.price}`} />)}</div>
+            <div className="book-side asks">{askRows.length ? askRows.map((level, index) => <BookRow level={level} side="ASK" depthPercent={level.cumulativeTotal / maxDepthTotal * 100} key={`ask-${index}-${level.price}`} />) : <div className="book-empty">{marketDataStatus === 'error' ? 'Binance depth unavailable' : 'Loading Binance depth…'}</div>}</div>
+            <div className="book-price">{binanceTicker ? `$${money(binanceTicker.lastPrice, priceDigits)}` : '—'} <span>Binance ref{spread === undefined ? '' : ` · spread ${money(spread, priceDigits)}`}</span></div>
+            <div className="book-side bids">{bidRows.length ? bidRows.map((level, index) => <BookRow level={level} side="BID" depthPercent={level.cumulativeTotal / maxDepthTotal * 100} key={`bid-${index}-${level.price}`} />) : <div className="book-empty">{marketDataStatus === 'error' ? 'Binance depth unavailable' : 'Loading Binance depth…'}</div>}</div>
+            <div className="book-disclaimer">Reference depth only. Paper orders execute against demo liquidity.</div>
           </section>
 
           <section className="order-panel panel">
@@ -408,40 +555,57 @@ function App() {
             </div>
           )}
         </section>
-        <footer className="app-footer">CEX paper exchange <span>·</span> Simulated balances, synthetic liquidity and funding. Not connected to a real exchange.</footer>
+        <footer className="app-footer">CEX paper exchange <span>·</span> Binance data is reference-only; orders, balances, matching and funding are simulated.</footer>
       </main>
     </div>
   )
 
 }
 
-function BookRow({ level, side }: { level: Level; side: Side }) {
-  return <div className={`book-row ${side === 'BID' ? 'positive' : 'negative'}`}><span>{money(level.price, 2)}</span><span>{money(level.quantity, 4)}</span><span>{money(level.price * level.quantity, 2)}</span></div>
+function BookRow({ level, side, depthPercent }: { level: BookLevel; side: Side; depthPercent: number }) {
+  const color = side === 'BID' ? 'rgba(46, 207, 145, .12)' : 'rgba(255, 104, 119, .12)'
+  return <div className={`book-row ${side === 'BID' ? 'positive' : 'negative'}`} style={{ background: `linear-gradient(to left, ${color} ${depthPercent}%, transparent ${depthPercent}%)` }}><span>{money(level.price, level.price < 1 ? 5 : level.price < 100 ? 4 : 2)}</span><span>{money(level.quantity, 4)}</span><span>{money(level.cumulativeTotal, 2)}</span></div>
 }
 
 function EmptyRow({ colSpan, text }: { colSpan: number; text: string }) {
   return <tr><td className="empty-row" colSpan={colSpan}>{text}</td></tr>
 }
 
-function PriceChart({ trades, fallbackPrice }: { trades: Trade[]; fallbackPrice: number }) {
-  const points = trades.slice(0, 30).reverse()
-  const values = points.map((trade) => trade.price)
-  const min = Math.min(...values, fallbackPrice * 0.999)
-  const max = Math.max(...values, fallbackPrice * 1.001)
-  const range = Math.max(max - min, 1)
-  const coordinates = points.map((trade, index) => {
-    const x = points.length < 2 ? 0 : (index / (points.length - 1)) * 100
-    const y = 100 - ((trade.price - min) / range) * 88 - 6
-    return `${x},${y}`
-  }).join(' ')
+function PriceChart({ candles, status, error, symbol, interval }: {
+  candles: Candle[]
+  status: 'loading' | 'connected' | 'stale' | 'error'
+  error: string
+  symbol: string
+  interval: CandleInterval
+}) {
+  const visible = candles.slice(-72)
+  const min = visible.length ? Math.min(...visible.map((candle) => candle.low)) : 0
+  const max = visible.length ? Math.max(...visible.map((candle) => candle.high)) : 0
+  const range = Math.max(max - min, Math.abs(max) * 0.001, 1e-8)
+  const maxVolume = Math.max(...visible.map((candle) => candle.volume), 1e-8)
+  const candleWidth = Math.max(0.45, 70 / Math.max(visible.length, 1))
+  const y = (price: number) => 4 + ((max - price) / range) * 73
   return (
     <div className="chart-canvas">
       <div className="chart-grid"><i /><i /><i /><i /></div>
-      {points.length > 1
-        ? <svg viewBox="0 0 100 100" preserveAspectRatio="none" role="img" aria-label="Recent trade prices"><polyline points={coordinates} /></svg>
-        : <div className="chart-empty">Price history will appear after trades match</div>}
-      <span className="chart-axis top">${money(max, 0)}</span>
-      <span className="chart-axis bottom">${money(min, 0)}</span>
+      {visible.length
+        ? <svg viewBox="0 0 100 100" preserveAspectRatio="none" role="img" aria-label={`Binance ${symbol} ${interval} candlestick chart`}>
+          {visible.map((candle, index) => {
+            const x = (index / visible.length) * 100 + (50 / visible.length)
+            const top = y(Math.max(candle.open, candle.close))
+            const bodyHeight = Math.max(0.45, (Math.abs(candle.close - candle.open) / range) * 73)
+            const volumeHeight = (candle.volume / maxVolume) * 10
+            const rising = candle.close >= candle.open
+            const className = rising ? 'candle-up' : 'candle-down'
+            return <g className={className} key={candle.time}>
+              <line x1={x} x2={x} y1={y(candle.high)} y2={y(candle.low)} />
+              <rect x={x - candleWidth / 2} y={top} width={candleWidth} height={bodyHeight} />
+              <rect className="candle-volume" x={x - candleWidth / 2} y={88 - volumeHeight} width={candleWidth} height={volumeHeight} />
+            </g>
+          })}
+        </svg>
+        : <div className="chart-empty">{status === 'error' ? error : 'Loading Binance candlesticks…'}</div>}
+      {visible.length > 0 && <><span className="chart-axis top">${money(max, max < 1 ? 5 : max < 100 ? 4 : 2)}</span><span className="chart-axis bottom">${money(min, min < 1 ? 5 : min < 100 ? 4 : 2)}</span></>}
     </div>
   )
 }
