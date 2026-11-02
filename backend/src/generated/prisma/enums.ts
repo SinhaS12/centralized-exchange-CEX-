@@ -18,8 +18,33 @@ export type CATEGORY = (typeof CATEGORY)[keyof typeof CATEGORY]
 
 
 export const TYPE = {
-  bid: 'bid',
-  ask: 'ask'
+  BID: 'BID',
+  ASK: 'ASK'
 } as const
 
 export type TYPE = (typeof TYPE)[keyof typeof TYPE]
+
+
+export const STATUS = {
+  OPEN: 'OPEN',
+  FILLED: 'FILLED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type STATUS = (typeof STATUS)[keyof typeof STATUS]
+
+
+export const MARKET_TYPE = {
+  SPOT: 'SPOT',
+  PERP: 'PERP'
+} as const
+
+export type MARKET_TYPE = (typeof MARKET_TYPE)[keyof typeof MARKET_TYPE]
+
+
+export const POSITION_SIDE = {
+  LONG: 'LONG',
+  SHORT: 'SHORT'
+} as const
+
+export type POSITION_SIDE = (typeof POSITION_SIDE)[keyof typeof POSITION_SIDE]

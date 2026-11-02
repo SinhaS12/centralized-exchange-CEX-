@@ -54,7 +54,12 @@ export const ModelName = {
   User: 'User',
   Stocks: 'Stocks',
   Order: 'Order',
-  Fills: 'Fills'
+  Fills: 'Fills',
+  AssetBalance: 'AssetBalance',
+  PerpPosition: 'PerpPosition',
+  FundingPayment: 'FundingPayment',
+  FundingSettlement: 'FundingSettlement',
+  LiquidationEvent: 'LiquidationEvent'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -85,7 +90,8 @@ export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof User
 
 export const StocksScalarFieldEnum = {
   id: 'id',
-  StockName: 'StockName'
+  StockName: 'StockName',
+  StockSymbol: 'StockSymbol'
 } as const
 
 export type StocksScalarFieldEnum = (typeof StocksScalarFieldEnum)[keyof typeof StocksScalarFieldEnum]
@@ -95,10 +101,17 @@ export const OrderScalarFieldEnum = {
   id: 'id',
   user: 'user',
   Stock: 'Stock',
+  StockName: 'StockName',
   category: 'category',
   type: 'type',
-  amount: 'amount',
+  status: 'status',
+  marketType: 'marketType',
+  legacyAmount: 'legacyAmount',
+  price: 'price',
   volume: 'volume',
+  remaining: 'remaining',
+  leverage: 'leverage',
+  reduceOnly: 'reduceOnly',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -110,10 +123,82 @@ export const FillsScalarFieldEnum = {
   id: 'id',
   order: 'order',
   user: 'user',
+  asset: 'asset',
+  category: 'category',
+  type: 'type',
+  legacyQuantity: 'legacyQuantity',
+  quantity: 'quantity',
+  price: 'price',
+  orginalOrderId: 'orginalOrderId',
+  marketType: 'marketType',
   createdAt: 'createdAt'
 } as const
 
 export type FillsScalarFieldEnum = (typeof FillsScalarFieldEnum)[keyof typeof FillsScalarFieldEnum]
+
+
+export const AssetBalanceScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  asset: 'asset',
+  available: 'available',
+  locked: 'locked',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AssetBalanceScalarFieldEnum = (typeof AssetBalanceScalarFieldEnum)[keyof typeof AssetBalanceScalarFieldEnum]
+
+
+export const PerpPositionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  symbol: 'symbol',
+  side: 'side',
+  quantity: 'quantity',
+  entryPrice: 'entryPrice',
+  margin: 'margin',
+  leverage: 'leverage',
+  liquidationPrice: 'liquidationPrice',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PerpPositionScalarFieldEnum = (typeof PerpPositionScalarFieldEnum)[keyof typeof PerpPositionScalarFieldEnum]
+
+
+export const FundingPaymentScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  symbol: 'symbol',
+  amount: 'amount',
+  rate: 'rate',
+  createdAt: 'createdAt'
+} as const
+
+export type FundingPaymentScalarFieldEnum = (typeof FundingPaymentScalarFieldEnum)[keyof typeof FundingPaymentScalarFieldEnum]
+
+
+export const FundingSettlementScalarFieldEnum = {
+  id: 'id',
+  symbol: 'symbol',
+  settlementAt: 'settlementAt',
+  createdAt: 'createdAt'
+} as const
+
+export type FundingSettlementScalarFieldEnum = (typeof FundingSettlementScalarFieldEnum)[keyof typeof FundingSettlementScalarFieldEnum]
+
+
+export const LiquidationEventScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  symbol: 'symbol',
+  side: 'side',
+  quantity: 'quantity',
+  price: 'price',
+  loss: 'loss',
+  createdAt: 'createdAt'
+} as const
+
+export type LiquidationEventScalarFieldEnum = (typeof LiquidationEventScalarFieldEnum)[keyof typeof LiquidationEventScalarFieldEnum]
 
 
 export const SortOrder = {

@@ -1,36 +1,36 @@
-import type {Request,Response, NextFunction } from "express";
-import  jwt, { type JwtHeader, type JwtPayload }  from "jsonwebtoken";
-import { error } from "node:console";
-if (!process.env.JWT_SECRET) {
-    throw error("Can,t access the env")
+import type { NextFunction, Request, Response } from "express";
+import jwt, { type JwtPayload } from "jsonwebtoken";
+
+export function middleware(req: Request, res: Response, next: NextFunction) {
+  const authorization = req.get("authorization");
+  const [scheme, token, extra] = authorization?.trim().split(/\s+/) ?? [];
+  if (scheme !== "Bearer" || !token || extra) {
+    return res.status(401).json({ success: false, message: "A Bearer token is required" });
+  }
+
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    return res.status(500).json({ success: false, message: "Authentication is not configured" });
+  }
+
+  try {
+    const payload = jwt.verify(token, secret);
+    const userId = typeof payload === "object" ? Number((payload as JwtPayload).id) : NaN;
+    if (!Number.isSafeInteger(userId) || userId < 1) {
+      return res.status(401).json({ success: false, message: "Invalid token" });
+    }
+
+    res.locals.userId = userId;
+    return next();
+  } catch {
+    return res.status(401).json({ success: false, message: "Invalid or expired token" });
+  }
 }
-const JWT_SECRET = process.env.JWT_SECRET;
 
-
-export function middleware(req:Request,res:Response,next:NextFunction){
-    const token=req.headers.authorization;
-    if(!token){
-        return res.status(403).json({
-            success:false,
-            message:"Please enter the token"
-        })
-    }
-    const bearer=token.split("")[0] as string;
-    try{
-        const decode=jwt.verify(bearer,JWT_SECRET) as JwtPayload;
-        if(!decode){
-            return res.status(402).json({
-                success:false,
-                message:"Invalid Token"
-            })
-        }
-        decode.userId=decode.id;
-        next();
-    }catch(error){
-        console.log(error);
-        return res.status(500).json({
-            success:false,
-            message:"Internal Server Error"
-        })
-    }
+export function authenticatedUserId(res: Response): number {
+  const userId = res.locals.userId;
+  if (!Number.isSafeInteger(userId)) {
+    throw new Error("Authenticated user id is missing");
+  }
+  return userId as number;
 }

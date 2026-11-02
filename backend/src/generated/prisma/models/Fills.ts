@@ -30,18 +30,34 @@ export type FillsAvgAggregateOutputType = {
   id: number | null
   order: number | null
   user: number | null
+  legacyQuantity: number | null
+  quantity: runtime.Decimal | null
+  price: runtime.Decimal | null
+  orginalOrderId: number | null
 }
 
 export type FillsSumAggregateOutputType = {
   id: number | null
   order: number | null
   user: number | null
+  legacyQuantity: number | null
+  quantity: runtime.Decimal | null
+  price: runtime.Decimal | null
+  orginalOrderId: number | null
 }
 
 export type FillsMinAggregateOutputType = {
   id: number | null
   order: number | null
   user: number | null
+  asset: string | null
+  category: $Enums.CATEGORY | null
+  type: $Enums.TYPE | null
+  legacyQuantity: number | null
+  quantity: runtime.Decimal | null
+  price: runtime.Decimal | null
+  orginalOrderId: number | null
+  marketType: $Enums.MARKET_TYPE | null
   createdAt: Date | null
 }
 
@@ -49,6 +65,14 @@ export type FillsMaxAggregateOutputType = {
   id: number | null
   order: number | null
   user: number | null
+  asset: string | null
+  category: $Enums.CATEGORY | null
+  type: $Enums.TYPE | null
+  legacyQuantity: number | null
+  quantity: runtime.Decimal | null
+  price: runtime.Decimal | null
+  orginalOrderId: number | null
+  marketType: $Enums.MARKET_TYPE | null
   createdAt: Date | null
 }
 
@@ -56,6 +80,14 @@ export type FillsCountAggregateOutputType = {
   id: number
   order: number
   user: number
+  asset: number
+  category: number
+  type: number
+  legacyQuantity: number
+  quantity: number
+  price: number
+  orginalOrderId: number
+  marketType: number
   createdAt: number
   _all: number
 }
@@ -65,18 +97,34 @@ export type FillsAvgAggregateInputType = {
   id?: true
   order?: true
   user?: true
+  legacyQuantity?: true
+  quantity?: true
+  price?: true
+  orginalOrderId?: true
 }
 
 export type FillsSumAggregateInputType = {
   id?: true
   order?: true
   user?: true
+  legacyQuantity?: true
+  quantity?: true
+  price?: true
+  orginalOrderId?: true
 }
 
 export type FillsMinAggregateInputType = {
   id?: true
   order?: true
   user?: true
+  asset?: true
+  category?: true
+  type?: true
+  legacyQuantity?: true
+  quantity?: true
+  price?: true
+  orginalOrderId?: true
+  marketType?: true
   createdAt?: true
 }
 
@@ -84,6 +132,14 @@ export type FillsMaxAggregateInputType = {
   id?: true
   order?: true
   user?: true
+  asset?: true
+  category?: true
+  type?: true
+  legacyQuantity?: true
+  quantity?: true
+  price?: true
+  orginalOrderId?: true
+  marketType?: true
   createdAt?: true
 }
 
@@ -91,6 +147,14 @@ export type FillsCountAggregateInputType = {
   id?: true
   order?: true
   user?: true
+  asset?: true
+  category?: true
+  type?: true
+  legacyQuantity?: true
+  quantity?: true
+  price?: true
+  orginalOrderId?: true
+  marketType?: true
   createdAt?: true
   _all?: true
 }
@@ -185,6 +249,14 @@ export type FillsGroupByOutputType = {
   id: number
   order: number
   user: number
+  asset: string
+  category: $Enums.CATEGORY
+  type: $Enums.TYPE
+  legacyQuantity: number
+  quantity: runtime.Decimal
+  price: runtime.Decimal
+  orginalOrderId: number
+  marketType: $Enums.MARKET_TYPE
   createdAt: Date
   _count: FillsCountAggregateOutputType | null
   _avg: FillsAvgAggregateOutputType | null
@@ -215,6 +287,14 @@ export type FillsWhereInput = {
   id?: Prisma.IntFilter<"Fills"> | number
   order?: Prisma.IntFilter<"Fills"> | number
   user?: Prisma.IntFilter<"Fills"> | number
+  asset?: Prisma.StringFilter<"Fills"> | string
+  category?: Prisma.EnumCATEGORYFilter<"Fills"> | $Enums.CATEGORY
+  type?: Prisma.EnumTYPEFilter<"Fills"> | $Enums.TYPE
+  legacyQuantity?: Prisma.IntFilter<"Fills"> | number
+  quantity?: Prisma.DecimalFilter<"Fills"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  price?: Prisma.DecimalFilter<"Fills"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  orginalOrderId?: Prisma.IntFilter<"Fills"> | number
+  marketType?: Prisma.EnumMARKET_TYPEFilter<"Fills"> | $Enums.MARKET_TYPE
   createdAt?: Prisma.DateTimeFilter<"Fills"> | Date | string
   orderId?: Prisma.XOR<Prisma.OrderScalarRelationFilter, Prisma.OrderWhereInput>
   userId?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -224,6 +304,14 @@ export type FillsOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   order?: Prisma.SortOrder
   user?: Prisma.SortOrder
+  asset?: Prisma.SortOrder
+  category?: Prisma.SortOrder
+  type?: Prisma.SortOrder
+  legacyQuantity?: Prisma.SortOrder
+  quantity?: Prisma.SortOrder
+  price?: Prisma.SortOrder
+  orginalOrderId?: Prisma.SortOrder
+  marketType?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   orderId?: Prisma.OrderOrderByWithRelationInput
   userId?: Prisma.UserOrderByWithRelationInput
@@ -236,6 +324,14 @@ export type FillsWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.FillsWhereInput | Prisma.FillsWhereInput[]
   order?: Prisma.IntFilter<"Fills"> | number
   user?: Prisma.IntFilter<"Fills"> | number
+  asset?: Prisma.StringFilter<"Fills"> | string
+  category?: Prisma.EnumCATEGORYFilter<"Fills"> | $Enums.CATEGORY
+  type?: Prisma.EnumTYPEFilter<"Fills"> | $Enums.TYPE
+  legacyQuantity?: Prisma.IntFilter<"Fills"> | number
+  quantity?: Prisma.DecimalFilter<"Fills"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  price?: Prisma.DecimalFilter<"Fills"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  orginalOrderId?: Prisma.IntFilter<"Fills"> | number
+  marketType?: Prisma.EnumMARKET_TYPEFilter<"Fills"> | $Enums.MARKET_TYPE
   createdAt?: Prisma.DateTimeFilter<"Fills"> | Date | string
   orderId?: Prisma.XOR<Prisma.OrderScalarRelationFilter, Prisma.OrderWhereInput>
   userId?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -245,6 +341,14 @@ export type FillsOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   order?: Prisma.SortOrder
   user?: Prisma.SortOrder
+  asset?: Prisma.SortOrder
+  category?: Prisma.SortOrder
+  type?: Prisma.SortOrder
+  legacyQuantity?: Prisma.SortOrder
+  quantity?: Prisma.SortOrder
+  price?: Prisma.SortOrder
+  orginalOrderId?: Prisma.SortOrder
+  marketType?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.FillsCountOrderByAggregateInput
   _avg?: Prisma.FillsAvgOrderByAggregateInput
@@ -260,25 +364,55 @@ export type FillsScalarWhereWithAggregatesInput = {
   id?: Prisma.IntWithAggregatesFilter<"Fills"> | number
   order?: Prisma.IntWithAggregatesFilter<"Fills"> | number
   user?: Prisma.IntWithAggregatesFilter<"Fills"> | number
+  asset?: Prisma.StringWithAggregatesFilter<"Fills"> | string
+  category?: Prisma.EnumCATEGORYWithAggregatesFilter<"Fills"> | $Enums.CATEGORY
+  type?: Prisma.EnumTYPEWithAggregatesFilter<"Fills"> | $Enums.TYPE
+  legacyQuantity?: Prisma.IntWithAggregatesFilter<"Fills"> | number
+  quantity?: Prisma.DecimalWithAggregatesFilter<"Fills"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  price?: Prisma.DecimalWithAggregatesFilter<"Fills"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  orginalOrderId?: Prisma.IntWithAggregatesFilter<"Fills"> | number
+  marketType?: Prisma.EnumMARKET_TYPEWithAggregatesFilter<"Fills"> | $Enums.MARKET_TYPE
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Fills"> | Date | string
 }
 
 export type FillsCreateInput = {
-  id: number
+  asset: string
+  category: $Enums.CATEGORY
+  type: $Enums.TYPE
+  legacyQuantity: number
+  quantity: runtime.Decimal | runtime.DecimalJsLike | number | string
+  price: runtime.Decimal | runtime.DecimalJsLike | number | string
+  orginalOrderId: number
+  marketType?: $Enums.MARKET_TYPE
   createdAt?: Date | string
   orderId: Prisma.OrderCreateNestedOneWithoutFillsInput
   userId: Prisma.UserCreateNestedOneWithoutFillsInput
 }
 
 export type FillsUncheckedCreateInput = {
-  id: number
+  id?: number
   order: number
   user: number
+  asset: string
+  category: $Enums.CATEGORY
+  type: $Enums.TYPE
+  legacyQuantity: number
+  quantity: runtime.Decimal | runtime.DecimalJsLike | number | string
+  price: runtime.Decimal | runtime.DecimalJsLike | number | string
+  orginalOrderId: number
+  marketType?: $Enums.MARKET_TYPE
   createdAt?: Date | string
 }
 
 export type FillsUpdateInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
+  asset?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.EnumCATEGORYFieldUpdateOperationsInput | $Enums.CATEGORY
+  type?: Prisma.EnumTYPEFieldUpdateOperationsInput | $Enums.TYPE
+  legacyQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  quantity?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  orginalOrderId?: Prisma.IntFieldUpdateOperationsInput | number
+  marketType?: Prisma.EnumMARKET_TYPEFieldUpdateOperationsInput | $Enums.MARKET_TYPE
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   orderId?: Prisma.OrderUpdateOneRequiredWithoutFillsNestedInput
   userId?: Prisma.UserUpdateOneRequiredWithoutFillsNestedInput
@@ -288,18 +422,41 @@ export type FillsUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   order?: Prisma.IntFieldUpdateOperationsInput | number
   user?: Prisma.IntFieldUpdateOperationsInput | number
+  asset?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.EnumCATEGORYFieldUpdateOperationsInput | $Enums.CATEGORY
+  type?: Prisma.EnumTYPEFieldUpdateOperationsInput | $Enums.TYPE
+  legacyQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  quantity?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  orginalOrderId?: Prisma.IntFieldUpdateOperationsInput | number
+  marketType?: Prisma.EnumMARKET_TYPEFieldUpdateOperationsInput | $Enums.MARKET_TYPE
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type FillsCreateManyInput = {
-  id: number
+  id?: number
   order: number
   user: number
+  asset: string
+  category: $Enums.CATEGORY
+  type: $Enums.TYPE
+  legacyQuantity: number
+  quantity: runtime.Decimal | runtime.DecimalJsLike | number | string
+  price: runtime.Decimal | runtime.DecimalJsLike | number | string
+  orginalOrderId: number
+  marketType?: $Enums.MARKET_TYPE
   createdAt?: Date | string
 }
 
 export type FillsUpdateManyMutationInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
+  asset?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.EnumCATEGORYFieldUpdateOperationsInput | $Enums.CATEGORY
+  type?: Prisma.EnumTYPEFieldUpdateOperationsInput | $Enums.TYPE
+  legacyQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  quantity?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  orginalOrderId?: Prisma.IntFieldUpdateOperationsInput | number
+  marketType?: Prisma.EnumMARKET_TYPEFieldUpdateOperationsInput | $Enums.MARKET_TYPE
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -307,6 +464,14 @@ export type FillsUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   order?: Prisma.IntFieldUpdateOperationsInput | number
   user?: Prisma.IntFieldUpdateOperationsInput | number
+  asset?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.EnumCATEGORYFieldUpdateOperationsInput | $Enums.CATEGORY
+  type?: Prisma.EnumTYPEFieldUpdateOperationsInput | $Enums.TYPE
+  legacyQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  quantity?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  orginalOrderId?: Prisma.IntFieldUpdateOperationsInput | number
+  marketType?: Prisma.EnumMARKET_TYPEFieldUpdateOperationsInput | $Enums.MARKET_TYPE
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -324,6 +489,14 @@ export type FillsCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   order?: Prisma.SortOrder
   user?: Prisma.SortOrder
+  asset?: Prisma.SortOrder
+  category?: Prisma.SortOrder
+  type?: Prisma.SortOrder
+  legacyQuantity?: Prisma.SortOrder
+  quantity?: Prisma.SortOrder
+  price?: Prisma.SortOrder
+  orginalOrderId?: Prisma.SortOrder
+  marketType?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -331,12 +504,24 @@ export type FillsAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   order?: Prisma.SortOrder
   user?: Prisma.SortOrder
+  legacyQuantity?: Prisma.SortOrder
+  quantity?: Prisma.SortOrder
+  price?: Prisma.SortOrder
+  orginalOrderId?: Prisma.SortOrder
 }
 
 export type FillsMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   order?: Prisma.SortOrder
   user?: Prisma.SortOrder
+  asset?: Prisma.SortOrder
+  category?: Prisma.SortOrder
+  type?: Prisma.SortOrder
+  legacyQuantity?: Prisma.SortOrder
+  quantity?: Prisma.SortOrder
+  price?: Prisma.SortOrder
+  orginalOrderId?: Prisma.SortOrder
+  marketType?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -344,6 +529,14 @@ export type FillsMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   order?: Prisma.SortOrder
   user?: Prisma.SortOrder
+  asset?: Prisma.SortOrder
+  category?: Prisma.SortOrder
+  type?: Prisma.SortOrder
+  legacyQuantity?: Prisma.SortOrder
+  quantity?: Prisma.SortOrder
+  price?: Prisma.SortOrder
+  orginalOrderId?: Prisma.SortOrder
+  marketType?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -351,6 +544,10 @@ export type FillsSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   order?: Prisma.SortOrder
   user?: Prisma.SortOrder
+  legacyQuantity?: Prisma.SortOrder
+  quantity?: Prisma.SortOrder
+  price?: Prisma.SortOrder
+  orginalOrderId?: Prisma.SortOrder
 }
 
 export type FillsCreateNestedManyWithoutUserIdInput = {
@@ -438,14 +635,29 @@ export type FillsUncheckedUpdateManyWithoutOrderIdNestedInput = {
 }
 
 export type FillsCreateWithoutUserIdInput = {
-  id: number
+  asset: string
+  category: $Enums.CATEGORY
+  type: $Enums.TYPE
+  legacyQuantity: number
+  quantity: runtime.Decimal | runtime.DecimalJsLike | number | string
+  price: runtime.Decimal | runtime.DecimalJsLike | number | string
+  orginalOrderId: number
+  marketType?: $Enums.MARKET_TYPE
   createdAt?: Date | string
   orderId: Prisma.OrderCreateNestedOneWithoutFillsInput
 }
 
 export type FillsUncheckedCreateWithoutUserIdInput = {
-  id: number
+  id?: number
   order: number
+  asset: string
+  category: $Enums.CATEGORY
+  type: $Enums.TYPE
+  legacyQuantity: number
+  quantity: runtime.Decimal | runtime.DecimalJsLike | number | string
+  price: runtime.Decimal | runtime.DecimalJsLike | number | string
+  orginalOrderId: number
+  marketType?: $Enums.MARKET_TYPE
   createdAt?: Date | string
 }
 
@@ -482,18 +694,41 @@ export type FillsScalarWhereInput = {
   id?: Prisma.IntFilter<"Fills"> | number
   order?: Prisma.IntFilter<"Fills"> | number
   user?: Prisma.IntFilter<"Fills"> | number
+  asset?: Prisma.StringFilter<"Fills"> | string
+  category?: Prisma.EnumCATEGORYFilter<"Fills"> | $Enums.CATEGORY
+  type?: Prisma.EnumTYPEFilter<"Fills"> | $Enums.TYPE
+  legacyQuantity?: Prisma.IntFilter<"Fills"> | number
+  quantity?: Prisma.DecimalFilter<"Fills"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  price?: Prisma.DecimalFilter<"Fills"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  orginalOrderId?: Prisma.IntFilter<"Fills"> | number
+  marketType?: Prisma.EnumMARKET_TYPEFilter<"Fills"> | $Enums.MARKET_TYPE
   createdAt?: Prisma.DateTimeFilter<"Fills"> | Date | string
 }
 
 export type FillsCreateWithoutOrderIdInput = {
-  id: number
+  asset: string
+  category: $Enums.CATEGORY
+  type: $Enums.TYPE
+  legacyQuantity: number
+  quantity: runtime.Decimal | runtime.DecimalJsLike | number | string
+  price: runtime.Decimal | runtime.DecimalJsLike | number | string
+  orginalOrderId: number
+  marketType?: $Enums.MARKET_TYPE
   createdAt?: Date | string
   userId: Prisma.UserCreateNestedOneWithoutFillsInput
 }
 
 export type FillsUncheckedCreateWithoutOrderIdInput = {
-  id: number
+  id?: number
   user: number
+  asset: string
+  category: $Enums.CATEGORY
+  type: $Enums.TYPE
+  legacyQuantity: number
+  quantity: runtime.Decimal | runtime.DecimalJsLike | number | string
+  price: runtime.Decimal | runtime.DecimalJsLike | number | string
+  orginalOrderId: number
+  marketType?: $Enums.MARKET_TYPE
   createdAt?: Date | string
 }
 
@@ -524,13 +759,28 @@ export type FillsUpdateManyWithWhereWithoutOrderIdInput = {
 }
 
 export type FillsCreateManyUserIdInput = {
-  id: number
+  id?: number
   order: number
+  asset: string
+  category: $Enums.CATEGORY
+  type: $Enums.TYPE
+  legacyQuantity: number
+  quantity: runtime.Decimal | runtime.DecimalJsLike | number | string
+  price: runtime.Decimal | runtime.DecimalJsLike | number | string
+  orginalOrderId: number
+  marketType?: $Enums.MARKET_TYPE
   createdAt?: Date | string
 }
 
 export type FillsUpdateWithoutUserIdInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
+  asset?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.EnumCATEGORYFieldUpdateOperationsInput | $Enums.CATEGORY
+  type?: Prisma.EnumTYPEFieldUpdateOperationsInput | $Enums.TYPE
+  legacyQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  quantity?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  orginalOrderId?: Prisma.IntFieldUpdateOperationsInput | number
+  marketType?: Prisma.EnumMARKET_TYPEFieldUpdateOperationsInput | $Enums.MARKET_TYPE
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   orderId?: Prisma.OrderUpdateOneRequiredWithoutFillsNestedInput
 }
@@ -538,23 +788,54 @@ export type FillsUpdateWithoutUserIdInput = {
 export type FillsUncheckedUpdateWithoutUserIdInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   order?: Prisma.IntFieldUpdateOperationsInput | number
+  asset?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.EnumCATEGORYFieldUpdateOperationsInput | $Enums.CATEGORY
+  type?: Prisma.EnumTYPEFieldUpdateOperationsInput | $Enums.TYPE
+  legacyQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  quantity?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  orginalOrderId?: Prisma.IntFieldUpdateOperationsInput | number
+  marketType?: Prisma.EnumMARKET_TYPEFieldUpdateOperationsInput | $Enums.MARKET_TYPE
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type FillsUncheckedUpdateManyWithoutUserIdInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   order?: Prisma.IntFieldUpdateOperationsInput | number
+  asset?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.EnumCATEGORYFieldUpdateOperationsInput | $Enums.CATEGORY
+  type?: Prisma.EnumTYPEFieldUpdateOperationsInput | $Enums.TYPE
+  legacyQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  quantity?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  orginalOrderId?: Prisma.IntFieldUpdateOperationsInput | number
+  marketType?: Prisma.EnumMARKET_TYPEFieldUpdateOperationsInput | $Enums.MARKET_TYPE
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type FillsCreateManyOrderIdInput = {
-  id: number
+  id?: number
   user: number
+  asset: string
+  category: $Enums.CATEGORY
+  type: $Enums.TYPE
+  legacyQuantity: number
+  quantity: runtime.Decimal | runtime.DecimalJsLike | number | string
+  price: runtime.Decimal | runtime.DecimalJsLike | number | string
+  orginalOrderId: number
+  marketType?: $Enums.MARKET_TYPE
   createdAt?: Date | string
 }
 
 export type FillsUpdateWithoutOrderIdInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
+  asset?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.EnumCATEGORYFieldUpdateOperationsInput | $Enums.CATEGORY
+  type?: Prisma.EnumTYPEFieldUpdateOperationsInput | $Enums.TYPE
+  legacyQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  quantity?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  orginalOrderId?: Prisma.IntFieldUpdateOperationsInput | number
+  marketType?: Prisma.EnumMARKET_TYPEFieldUpdateOperationsInput | $Enums.MARKET_TYPE
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.UserUpdateOneRequiredWithoutFillsNestedInput
 }
@@ -562,12 +843,28 @@ export type FillsUpdateWithoutOrderIdInput = {
 export type FillsUncheckedUpdateWithoutOrderIdInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   user?: Prisma.IntFieldUpdateOperationsInput | number
+  asset?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.EnumCATEGORYFieldUpdateOperationsInput | $Enums.CATEGORY
+  type?: Prisma.EnumTYPEFieldUpdateOperationsInput | $Enums.TYPE
+  legacyQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  quantity?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  orginalOrderId?: Prisma.IntFieldUpdateOperationsInput | number
+  marketType?: Prisma.EnumMARKET_TYPEFieldUpdateOperationsInput | $Enums.MARKET_TYPE
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type FillsUncheckedUpdateManyWithoutOrderIdInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   user?: Prisma.IntFieldUpdateOperationsInput | number
+  asset?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.EnumCATEGORYFieldUpdateOperationsInput | $Enums.CATEGORY
+  type?: Prisma.EnumTYPEFieldUpdateOperationsInput | $Enums.TYPE
+  legacyQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  quantity?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  orginalOrderId?: Prisma.IntFieldUpdateOperationsInput | number
+  marketType?: Prisma.EnumMARKET_TYPEFieldUpdateOperationsInput | $Enums.MARKET_TYPE
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -577,6 +874,14 @@ export type FillsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   id?: boolean
   order?: boolean
   user?: boolean
+  asset?: boolean
+  category?: boolean
+  type?: boolean
+  legacyQuantity?: boolean
+  quantity?: boolean
+  price?: boolean
+  orginalOrderId?: boolean
+  marketType?: boolean
   createdAt?: boolean
   orderId?: boolean | Prisma.OrderDefaultArgs<ExtArgs>
   userId?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -586,6 +891,14 @@ export type FillsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   id?: boolean
   order?: boolean
   user?: boolean
+  asset?: boolean
+  category?: boolean
+  type?: boolean
+  legacyQuantity?: boolean
+  quantity?: boolean
+  price?: boolean
+  orginalOrderId?: boolean
+  marketType?: boolean
   createdAt?: boolean
   orderId?: boolean | Prisma.OrderDefaultArgs<ExtArgs>
   userId?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -595,6 +908,14 @@ export type FillsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   id?: boolean
   order?: boolean
   user?: boolean
+  asset?: boolean
+  category?: boolean
+  type?: boolean
+  legacyQuantity?: boolean
+  quantity?: boolean
+  price?: boolean
+  orginalOrderId?: boolean
+  marketType?: boolean
   createdAt?: boolean
   orderId?: boolean | Prisma.OrderDefaultArgs<ExtArgs>
   userId?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -604,10 +925,18 @@ export type FillsSelectScalar = {
   id?: boolean
   order?: boolean
   user?: boolean
+  asset?: boolean
+  category?: boolean
+  type?: boolean
+  legacyQuantity?: boolean
+  quantity?: boolean
+  price?: boolean
+  orginalOrderId?: boolean
+  marketType?: boolean
   createdAt?: boolean
 }
 
-export type FillsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "order" | "user" | "createdAt", ExtArgs["result"]["fills"]>
+export type FillsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "order" | "user" | "asset" | "category" | "type" | "legacyQuantity" | "quantity" | "price" | "orginalOrderId" | "marketType" | "createdAt", ExtArgs["result"]["fills"]>
 export type FillsInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   orderId?: boolean | Prisma.OrderDefaultArgs<ExtArgs>
   userId?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -631,6 +960,14 @@ export type $FillsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     id: number
     order: number
     user: number
+    asset: string
+    category: $Enums.CATEGORY
+    type: $Enums.TYPE
+    legacyQuantity: number
+    quantity: runtime.Decimal
+    price: runtime.Decimal
+    orginalOrderId: number
+    marketType: $Enums.MARKET_TYPE
     createdAt: Date
   }, ExtArgs["result"]["fills"]>
   composites: {}
@@ -1060,6 +1397,14 @@ export interface FillsFieldRefs {
   readonly id: Prisma.FieldRef<"Fills", 'Int'>
   readonly order: Prisma.FieldRef<"Fills", 'Int'>
   readonly user: Prisma.FieldRef<"Fills", 'Int'>
+  readonly asset: Prisma.FieldRef<"Fills", 'String'>
+  readonly category: Prisma.FieldRef<"Fills", 'CATEGORY'>
+  readonly type: Prisma.FieldRef<"Fills", 'TYPE'>
+  readonly legacyQuantity: Prisma.FieldRef<"Fills", 'Int'>
+  readonly quantity: Prisma.FieldRef<"Fills", 'Decimal'>
+  readonly price: Prisma.FieldRef<"Fills", 'Decimal'>
+  readonly orginalOrderId: Prisma.FieldRef<"Fills", 'Int'>
+  readonly marketType: Prisma.FieldRef<"Fills", 'MARKET_TYPE'>
   readonly createdAt: Prisma.FieldRef<"Fills", 'DateTime'>
 }
     

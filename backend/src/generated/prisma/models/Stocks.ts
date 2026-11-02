@@ -37,16 +37,19 @@ export type StocksSumAggregateOutputType = {
 export type StocksMinAggregateOutputType = {
   id: number | null
   StockName: string | null
+  StockSymbol: string | null
 }
 
 export type StocksMaxAggregateOutputType = {
   id: number | null
   StockName: string | null
+  StockSymbol: string | null
 }
 
 export type StocksCountAggregateOutputType = {
   id: number
   StockName: number
+  StockSymbol: number
   _all: number
 }
 
@@ -62,16 +65,19 @@ export type StocksSumAggregateInputType = {
 export type StocksMinAggregateInputType = {
   id?: true
   StockName?: true
+  StockSymbol?: true
 }
 
 export type StocksMaxAggregateInputType = {
   id?: true
   StockName?: true
+  StockSymbol?: true
 }
 
 export type StocksCountAggregateInputType = {
   id?: true
   StockName?: true
+  StockSymbol?: true
   _all?: true
 }
 
@@ -164,6 +170,7 @@ export type StocksGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalA
 export type StocksGroupByOutputType = {
   id: number
   StockName: string
+  StockSymbol: string
   _count: StocksCountAggregateOutputType | null
   _avg: StocksAvgAggregateOutputType | null
   _sum: StocksSumAggregateOutputType | null
@@ -192,27 +199,31 @@ export type StocksWhereInput = {
   NOT?: Prisma.StocksWhereInput | Prisma.StocksWhereInput[]
   id?: Prisma.IntFilter<"Stocks"> | number
   StockName?: Prisma.StringFilter<"Stocks"> | string
+  StockSymbol?: Prisma.StringFilter<"Stocks"> | string
   Order?: Prisma.OrderListRelationFilter
 }
 
 export type StocksOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   StockName?: Prisma.SortOrder
+  StockSymbol?: Prisma.SortOrder
   Order?: Prisma.OrderOrderByRelationAggregateInput
 }
 
 export type StocksWhereUniqueInput = Prisma.AtLeast<{
   id?: number
   StockName?: string
+  StockSymbol?: string
   AND?: Prisma.StocksWhereInput | Prisma.StocksWhereInput[]
   OR?: Prisma.StocksWhereInput[]
   NOT?: Prisma.StocksWhereInput | Prisma.StocksWhereInput[]
   Order?: Prisma.OrderListRelationFilter
-}, "id" | "StockName">
+}, "id" | "StockName" | "StockSymbol">
 
 export type StocksOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   StockName?: Prisma.SortOrder
+  StockSymbol?: Prisma.SortOrder
   _count?: Prisma.StocksCountOrderByAggregateInput
   _avg?: Prisma.StocksAvgOrderByAggregateInput
   _max?: Prisma.StocksMaxOrderByAggregateInput
@@ -226,50 +237,56 @@ export type StocksScalarWhereWithAggregatesInput = {
   NOT?: Prisma.StocksScalarWhereWithAggregatesInput | Prisma.StocksScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"Stocks"> | number
   StockName?: Prisma.StringWithAggregatesFilter<"Stocks"> | string
+  StockSymbol?: Prisma.StringWithAggregatesFilter<"Stocks"> | string
 }
 
 export type StocksCreateInput = {
-  id: number
   StockName: string
+  StockSymbol: string
   Order?: Prisma.OrderCreateNestedManyWithoutStockIdInput
 }
 
 export type StocksUncheckedCreateInput = {
-  id: number
+  id?: number
   StockName: string
+  StockSymbol: string
   Order?: Prisma.OrderUncheckedCreateNestedManyWithoutStockIdInput
 }
 
 export type StocksUpdateInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
   StockName?: Prisma.StringFieldUpdateOperationsInput | string
+  StockSymbol?: Prisma.StringFieldUpdateOperationsInput | string
   Order?: Prisma.OrderUpdateManyWithoutStockIdNestedInput
 }
 
 export type StocksUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   StockName?: Prisma.StringFieldUpdateOperationsInput | string
+  StockSymbol?: Prisma.StringFieldUpdateOperationsInput | string
   Order?: Prisma.OrderUncheckedUpdateManyWithoutStockIdNestedInput
 }
 
 export type StocksCreateManyInput = {
-  id: number
+  id?: number
   StockName: string
+  StockSymbol: string
 }
 
 export type StocksUpdateManyMutationInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
   StockName?: Prisma.StringFieldUpdateOperationsInput | string
+  StockSymbol?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type StocksUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   StockName?: Prisma.StringFieldUpdateOperationsInput | string
+  StockSymbol?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type StocksCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   StockName?: Prisma.SortOrder
+  StockSymbol?: Prisma.SortOrder
 }
 
 export type StocksAvgOrderByAggregateInput = {
@@ -279,11 +296,13 @@ export type StocksAvgOrderByAggregateInput = {
 export type StocksMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   StockName?: Prisma.SortOrder
+  StockSymbol?: Prisma.SortOrder
 }
 
 export type StocksMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   StockName?: Prisma.SortOrder
+  StockSymbol?: Prisma.SortOrder
 }
 
 export type StocksSumOrderByAggregateInput = {
@@ -310,13 +329,14 @@ export type StocksUpdateOneRequiredWithoutOrderNestedInput = {
 }
 
 export type StocksCreateWithoutOrderInput = {
-  id: number
   StockName: string
+  StockSymbol: string
 }
 
 export type StocksUncheckedCreateWithoutOrderInput = {
-  id: number
+  id?: number
   StockName: string
+  StockSymbol: string
 }
 
 export type StocksCreateOrConnectWithoutOrderInput = {
@@ -336,13 +356,14 @@ export type StocksUpdateToOneWithWhereWithoutOrderInput = {
 }
 
 export type StocksUpdateWithoutOrderInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
   StockName?: Prisma.StringFieldUpdateOperationsInput | string
+  StockSymbol?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type StocksUncheckedUpdateWithoutOrderInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   StockName?: Prisma.StringFieldUpdateOperationsInput | string
+  StockSymbol?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 
@@ -379,6 +400,7 @@ export type StocksCountOutputTypeCountOrderArgs<ExtArgs extends runtime.Types.Ex
 export type StocksSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   StockName?: boolean
+  StockSymbol?: boolean
   Order?: boolean | Prisma.Stocks$OrderArgs<ExtArgs>
   _count?: boolean | Prisma.StocksCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["stocks"]>
@@ -386,19 +408,22 @@ export type StocksSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
 export type StocksSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   StockName?: boolean
+  StockSymbol?: boolean
 }, ExtArgs["result"]["stocks"]>
 
 export type StocksSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   StockName?: boolean
+  StockSymbol?: boolean
 }, ExtArgs["result"]["stocks"]>
 
 export type StocksSelectScalar = {
   id?: boolean
   StockName?: boolean
+  StockSymbol?: boolean
 }
 
-export type StocksOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "StockName", ExtArgs["result"]["stocks"]>
+export type StocksOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "StockName" | "StockSymbol", ExtArgs["result"]["stocks"]>
 export type StocksInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Order?: boolean | Prisma.Stocks$OrderArgs<ExtArgs>
   _count?: boolean | Prisma.StocksCountOutputTypeDefaultArgs<ExtArgs>
@@ -414,6 +439,7 @@ export type $StocksPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     StockName: string
+    StockSymbol: string
   }, ExtArgs["result"]["stocks"]>
   composites: {}
 }
@@ -840,6 +866,7 @@ export interface Prisma__StocksClient<T, Null = never, ExtArgs extends runtime.T
 export interface StocksFieldRefs {
   readonly id: Prisma.FieldRef<"Stocks", 'Int'>
   readonly StockName: Prisma.FieldRef<"Stocks", 'String'>
+  readonly StockSymbol: Prisma.FieldRef<"Stocks", 'String'>
 }
     
 
